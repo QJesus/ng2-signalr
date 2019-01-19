@@ -64,10 +64,6 @@ export class SignalRConnection implements ISignalRConnection {
         return $promise;
     }
 
-    public stop(): void {
-        this._jConnection.stop();
-    }
-
     public invoke(method: string, ...parameters: any[]): Promise<any> {
         if (method == null) {
             throw new Error('SignalRConnection: Failed to invoke. Argument \'method\' can not be null');
@@ -110,14 +106,24 @@ export class SignalRConnection implements ISignalRConnection {
         this.setListener(callback, listener);
     }
 
-    public stopListening<T>(listener: BroadcastEventListener<T>): void {
+    public stopListen<T>(listener: BroadcastEventListener<T>): void {
         if (listener == null) {
             throw new Error('Failed to listen. Argument \'listener\' can not be null');
         }
-        this.stopListen(listener.event);
+        this.stopListenFor(listener.event);
     }
 
-    public stopListen(event: string): void {
+    public listenFor<T>(event: string): BroadcastEventListener<T> {
+        if (event == null || event === '') {
+            throw new Error('Failed to listen. Argument \'event\' can not be empty');
+        }
+
+        const listener = new BroadcastEventListener<T>(event);
+        this.listen(listener);
+        return listener;
+    }
+
+    public stopListenFor(event: string): void {
         if (event == null || event === '') {
             throw new Error('Failed to listen. Argument \'event\' can not be empty');
         }
@@ -129,18 +135,6 @@ export class SignalRConnection implements ISignalRConnection {
             this._jProxy.off(event, callback);
         }
         this._listeners[event] = [];
-    }
-
-    public listenFor<T>(event: string): BroadcastEventListener<T> {
-        if (event == null || event === '') {
-            throw new Error('Failed to listen. Argument \'event\' can not be empty');
-        }
-
-        const listener = new BroadcastEventListener<T>(event);
-
-        this.listen(listener);
-
-        return listener;
     }
 
     public listenForRaw(event: string): BroadcastEventListener<any[]> {
@@ -160,6 +154,10 @@ export class SignalRConnection implements ISignalRConnection {
 
         this.setListener(callback, listener);
         return listener;
+    }
+
+    public stop(): void {
+        this._jConnection.stop();
     }
 
     private setListener<T>(callback: CallbackFn, listener: BroadcastEventListener<T>) {
