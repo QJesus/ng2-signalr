@@ -70,7 +70,7 @@
     "karma-webpack": "2.0.2",
     "reflect-metadata": "0.1.9",
     "rollup": "0.41.4",
-    "rxjs": "6.1.0",
+    "rxjs": "^6.1.0",
     "shelljs": "0.7.6",
     "ts-helpers": "1.1.2",
     "ts-loader": "2.0.0",

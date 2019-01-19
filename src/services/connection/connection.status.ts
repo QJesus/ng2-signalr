@@ -9,7 +9,7 @@ export class ConnectionStatus {
     }
 
      get name(): string {
-        return ConnectionStatus.names[Number.parseInt(this._value.toString())];
+        return ConnectionStatus.names[Number.parseInt(this._value.toString(), 10)];
     }
 
     constructor(value: number) {

@@ -35,6 +35,10 @@ export class SignalRConnection implements ISignalRConnection {
         return this._status;
     }
 
+    public get id(): string {
+        return this._jConnection.id;
+    }
+
     public start(): Promise<ISignalRConnection> {
 
         const jTransports = this.convertTransports(this._configuration.transport);
@@ -62,10 +66,6 @@ export class SignalRConnection implements ISignalRConnection {
 
     public stop(): void {
         this._jConnection.stop();
-    }
-
-    public get id(): string {
-        return this._jConnection.id;
     }
 
     public invoke(method: string, ...parameters: any[]): Promise<any> {
