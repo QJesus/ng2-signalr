@@ -114,17 +114,21 @@ export class SignalRConnection implements ISignalRConnection {
         if (listener == null) {
             throw new Error('Failed to listen. Argument \'listener\' can not be null');
         }
+        this.stopListen(listener.event);
+    }
 
-        this.log(`SignalRConnection: Stopping listening to server event with name ${listener.event}`);
-        if (!this._listeners[listener.event]) {
-            this._listeners[listener.event] = [];
+    public stopListen(event: string): void {
+        if (event == null || event === '') {
+            throw new Error('Failed to listen. Argument \'event\' can not be empty');
         }
 
-        for (const callback of this._listeners[listener.event]) {
-            this._jProxy.off(listener.event, callback);
-        }
+        this.log(`SignalRConnection: Stopping listening to server event with name ${event}`);
+        this._listeners[event] = this._listeners[event] || [];
 
-        this._listeners[listener.event] = [];
+        for (const callback of this._listeners[event]) {
+            this._jProxy.off(event, callback);
+        }
+        this._listeners[event] = [];
     }
 
     public listenFor<T>(event: string): BroadcastEventListener<T> {
@@ -148,12 +152,8 @@ export class SignalRConnection implements ISignalRConnection {
 
         const callback: CallbackFn = (...args: any[]) => {
             this.run(() => {
-                let casted: any[] = [];
-                if (args.length > 0) {
-                    casted = args;
-                }
                 this.log('SignalRConnection.proxy.on invoked. Calling listener next() ...');
-                listener.next(args);
+                listener.next(args || []);
                 this.log('listener next() called.');
             }, this._configuration.executeEventsInZone);
         };
